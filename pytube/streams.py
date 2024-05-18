@@ -61,6 +61,10 @@ class Stream:
         self.is_otf: bool = stream["is_otf"]
         self.bitrate: Optional[int] = stream["bitrate"]
 
+        self.audio_quality: Optional[str] = stream.get("audioQuality")
+        self.audio_track: dict = stream.get("audioTrack", {})
+        self.audio_is_default: Optional[bool] = self.audio_track.get("audioIsDefault")
+
         # filesize in bytes
         self._filesize: Optional[int] = int(stream.get('contentLength', 0))
         
@@ -432,5 +436,12 @@ class Stream:
                 parts.extend(['vcodec="{s.video_codec}"'])
         else:
             parts.extend(['abr="{s.abr}"', 'acodec="{s.audio_codec}"'])
+        if self.type == "audio":
+            parts.extend(
+                [
+                    'defaultaudio="{s.audio_is_default}"',
+                    'audioquality="{s.audio_quality}"',
+                ]
+            )
         parts.extend(['progressive="{s.is_progressive}"', 'type="{s.type}"'])
         return f"<Stream: {' '.join(parts).format(s=self)}>"
